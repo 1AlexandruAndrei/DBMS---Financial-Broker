@@ -1,0 +1,1028 @@
+
+---------------------------------------------------------------------------------------
+create table BROKER (id_broker number(5) constraint pk_broker primary key,
+                    nume varchar2(25) constraint nume_null not null);
+create table CLIENT (id_client number(5) constraint pk_client primary key,
+                     id_broker number(5) not null,
+                     nume varchar2(25) constraint nume_client_null not null,
+                     prenume varchar2(25) constraint prenume_client_null not null,
+                     cnp number(15),
+                     constraint fk_broker foreign key (id_broker) references BROKER(id_broker)
+                     );
+
+create table PORTOFOLIU (id_portofoliu number(6) constraint pk_portofoliu primary key, 
+                         id_client number(5) not null,
+                         balanta number(10),
+                         constraint fk_client foreign key (id_client) references CLIENT(id_client));
+
+create table ORDIN (id_ordin number(5) constraint pk_ordin primary key,
+                    id_portofoliu number(6) not null,
+                    tip varchar2 (10) not null,
+                    numar number(7),
+                    pret_unitate number(8,2),
+                    stare varchar2(10) not null,
+                    constraint fk_portofoliu foreign key (id_portofoliu) 
+                    references PORTOFOLIU(id_portofoliu)
+                    );
+                    
+create table ETF   (id_etf number(5) constraint pk_etf primary key,
+                    id_ordin number(5) not null,
+                    simbol varchar2(25) not null,
+                    pret_curent number(10,2),
+                    constraint fk_ordin foreign key (id_ordin) 
+                    references ORDIN(id_ordin)
+                    );
+                    
+create table OBLIGATIUNE    (id_obligatiune number(5) constraint pk_obligatiune primary key,
+                            id_ordin number(5) not null,
+                            emitent varchar2(25) constraint emitent_obligatiune_null not null,
+                            valoare number(7,2),
+                            data_scadenta date not null,
+                            constraint fk_ordin_obligatiune foreign key (id_ordin) references ORDIN(id_ordin)
+                    );
+
+create table COMPANIE (id_companie number(5) constraint pk_companie primary key,
+                       nume varchar2(25) constraint nume_companie not null,
+                       simbol varchar2(10) constraint simbol_companie not null,
+                       capitalizare number(15),
+                       sector varchar2(20) constraint sector_companie not null
+                       );
+                       
+create table DIVIDEND (id_dividend number(5) constraint pk_dividend primary key,
+                       id_companie number(5) not null,
+                       valoare number(15,2),
+                       data_plata date not null,
+                       constraint fk_dividend_companie foreign key (id_companie) references COMPANIE(id_companie)
+                       );
+
+create table ACTIUNE (id_actiune number(5) constraint pk_actiune primary key,
+                      id_ordin number(5) not null, 
+                      id_companie number(5) not null,
+                      pret_curent number(7,2),
+                      constraint fk_actiune_ordin foreign key (id_ordin) references ORDIN(id_ordin),
+                      constraint fk_actiune_companie foreign key (id_companie) references COMPANIE(id_companie)
+                      );
+
+create table ACTIONAR (id_actionar number(5) constraint pk_actionar primary key,
+                       nume varchar2(25) constraint nume_actionar not null,
+                       adresa varchar2(25) constraint adresa_actionar not null,
+                       tip_actionar varchar2(20) constraint chk_actionar check 
+                       (tip_actionar in ('persoana fizica', 'persoana juridica'))
+                       );
+
+create table INVESTESTE (id_act_comp number(5) constraint pk_actionar_companie primary key,
+                         id_actionar number(5) not null,
+                         id_companie number(5) not null,
+                         data_achizitie date not null,
+                         procent number(3),
+                         valoare_investitie number(10),
+                         constraint fk_inv_act foreign key (id_actionar) references ACTIONAR(id_actionar),
+                         constraint fk_inv_comp foreign key (id_companie) references COMPANIE(id_companie)
+                         );
+
+create table DETINE (id_detine number(5) constraint pk_detine primary key,
+                     id_client number(5) not null,
+                     id_portofoliu number(6) not null,
+                     id_actiune number(5) not null,
+                     data_achizitie date constraint data_ach_cln not null,
+                     constraint fk_cln_det foreign key (id_client) references CLIENT(id_client),
+                     constraint fk_por_det foreign key (id_portofoliu) references PORTOFOLIU(id_portofoliu),
+                     constraint fk_act_det foreign key (id_actiune) references ACTIUNE(id_actiune));
+
+
+
+---------------------------INSERT-------------------------
+
+
+
+INSERT INTO BROKER VALUES (100, 'Tradeville');
+INSERT INTO BROKER VALUES (101, 'XTB');
+INSERT INTO BROKER VALUES (102, 'Interactive Brokers');
+INSERT INTO BROKER VALUES (103, 'BRK Financial Group');
+INSERT INTO BROKER VALUES (104, 'Swiss Capital');
+INSERT INTO BROKER VALUES (105, 'Finconta');
+INSERT INTO BROKER VALUES (106, 'BCR Invest');
+INSERT INTO BROKER VALUES (107, 'United Capital');
+INSERT INTO BROKER VALUES (109, 'Eurobroker');
+INSERT INTO BROKER VALUES (110, 'IFB Finwest');
+INSERT INTO BROKER VALUES (472, 'GOLDRING');
+select * from broker;
+commit;
+--////////////////////////////////////////////////////////////////
+INSERT INTO CLIENT VALUES (7381, 105, 'Popescu', 'Mihai', 5030925280154);
+INSERT INTO CLIENT VALUES (7401, 102, 'Petre', 'Cristian', 5020812180256);
+INSERT INTO CLIENT VALUES (3281, 105, 'Popescu', 'Mihai', 5030925280154);
+INSERT INTO CLIENT VALUES (1000, 106, 'Stefanescu', 'Alexandru', 5000217170069);
+INSERT INTO CLIENT VALUES (923, 472, 'Ionescu', 'Miruna', 6020228180154);
+INSERT INTO CLIENT VALUES (927, 100, 'Dan', 'Liviu', 5010215189801);
+INSERT INTO CLIENT VALUES (342, 101, 'Ralea', 'Andreea', 2900223123456);
+INSERT INTO CLIENT VALUES (328, 107, 'Matala', 'Darius', 1890701234567);
+INSERT INTO CLIENT VALUES (594, 107, 'Mardare', 'Mihnea', 1920320123456);
+INSERT INTO CLIENT VALUES (2439, 102, 'Toc', 'Theodor', 1910702123456);
+INSERT INTO CLIENT VALUES (238, 103, 'Sorinescu', 'Catalin', 1740504123456);
+INSERT INTO CLIENT VALUES (1992, 103, 'Niculescu', 'Ion', 1760102123456);
+INSERT INTO CLIENT VALUES (813, 106, 'Stoica', 'Andrei',1750218123456);
+INSERT INTO CLIENT VALUES (653, 106, 'Gheorghe', 'Radu', 1940425123456);
+INSERT INTO CLIENT VALUES (290, 109, 'Dragomir', 'Bogdan', 1920334455667);
+INSERT INTO CLIENT VALUES (119, 110, 'Simion', 'Sorin', 1940556677889);
+INSERT INTO CLIENT VALUES (568, 472, 'Porumbescu', 'Liviu', 1980990011223);
+INSERT INTO CLIENT VALUES (992, 110, 'Toma', 'Rares', 1960778899001);
+INSERT INTO CLIENT VALUES (444, 104, 'Casian', 'Sorin', 1900416123456);
+select * from client;
+commit;
+--/////////////////////////////////////////////////////////////////////////////////
+INSERT INTO PORTOFOLIU VALUES (1234, 444, 6000);
+INSERT INTO PORTOFOLIU VALUES (5678, 238, 7500);
+INSERT INTO PORTOFOLIU VALUES (9012, 1992, 90000);
+INSERT INTO PORTOFOLIU VALUES (3456, 1992, 0);
+INSERT INTO PORTOFOLIU VALUES (7890, 813, 5000);
+INSERT INTO PORTOFOLIU VALUES (2345, 653, 10000000);
+INSERT INTO PORTOFOLIU VALUES (6789, 290, 25000);
+INSERT INTO PORTOFOLIU VALUES (1230, 119, 98765430);
+INSERT INTO PORTOFOLIU VALUES (4561, 568, 8000);
+INSERT INTO PORTOFOLIU VALUES (7903, 992, 60000000);
+INSERT INTO PORTOFOLIU VALUES (2342, 444, 12000);
+INSERT INTO PORTOFOLIU VALUES (6784, 3281, 3456789123);
+INSERT INTO PORTOFOLIU VALUES (125, 1000, 9500);
+INSERT INTO PORTOFOLIU VALUES (4566, 923, 100000001);
+INSERT INTO PORTOFOLIU VALUES (8907, 927, 42000);
+INSERT INTO PORTOFOLIU VALUES (2348, 342, 5678912345);
+INSERT INTO PORTOFOLIU VALUES (6780, 328, 20000);
+INSERT INTO PORTOFOLIU VALUES (7129, 594, 78123456);
+INSERT INTO PORTOFOLIU VALUES (4563, 2439, 15000);
+commit;
+select * from portofoliu;
+--/////////////////////////////////////////////////////////////////////////////////
+INSERT INTO ORDIN VALUES (592, 1234, 'vanzare', 34, 1222.3, 'deschis');
+INSERT INTO ORDIN VALUES (5434, 1234, 'vanzare', 6000, 100, 'inchis');
+INSERT INTO ORDIN VALUES (711, 5678, 'vanzare', 34, 771.3, 'deschis');
+INSERT INTO ORDIN VALUES (5876, 9012, 'cumparare', 1000, 2.3, 'inchis');
+INSERT INTO ORDIN VALUES (555, 3456, 'vanzare', 10, 22.9, 'inchis');
+INSERT INTO ORDIN VALUES (222, 3456, 'cumparare', 354, 4422.1, 'deschis');
+INSERT INTO ORDIN VALUES (598, 7890, 'vanzare', 1000, 96.5, 'deschis');
+INSERT INTO ORDIN VALUES (792, 2345, 'cumparare', 4, 8800, 'inchis');
+INSERT INTO ORDIN VALUES (888, 2345, 'cumparare', 3, 100000, 'deschis');
+INSERT INTO ORDIN VALUES (900, 6789, 'vanzare', 1000, 9999, 'deschis');
+INSERT INTO ORDIN VALUES (687, 6789, 'cumparare', 3114, 686.5, 'inchis');
+INSERT INTO ORDIN VALUES (777, 1230, 'vanzare', 1200, 22.2, 'deschis');
+INSERT INTO ORDIN VALUES (551, 4561, 'vanzare', 2, 56622.7, 'inchis');
+INSERT INTO ORDIN VALUES (567, 7903, 'cumparare', 6660, 1222.8, 'deschis');
+INSERT INTO ORDIN VALUES (5923, 2342, 'cumparare', 778, 8998.1, 'deschis');
+INSERT INTO ORDIN VALUES (87655, 6784, 'cumparare', 3002, 1222.3, 'inchis');
+INSERT INTO ORDIN VALUES (4564, 125, 'vanzare', 3, 12.9, 'inchis');
+INSERT INTO ORDIN VALUES (3443, 4561, 'vanzare', 7, 12227.1, 'deschis');
+INSERT INTO ORDIN VALUES (110, 4566, 'vanzare', 10000, 6, 'deschis');
+INSERT INTO ORDIN VALUES (112, 4566, 'cumparare', 2, 880.3, 'deschis');
+INSERT INTO ORDIN VALUES (668, 8907, 'cumparare', 1, 5765.5, 'inchis');
+INSERT INTO ORDIN VALUES (999, 2348, 'vanzare', 60, 3765.1, 'deschis');
+INSERT INTO ORDIN VALUES (1000, 6780, 'cumparare', 99999, 0.8, 'inchis');
+INSERT INTO ORDIN VALUES (1010, 7129, 'vanzare', 3, 789.9, 'inchis');
+INSERT INTO ORDIN VALUES (1111, 7129, 'vanzare', 5, 900, 'deschis');
+INSERT INTO ORDIN VALUES (6799, 4563, 'cumparare', 10, 100000, 'inchis');
+select * from ordin;
+--/////////////////////////////////////////////////////////////////////////////////
+INSERT INTO ETF VALUES(6712, 5434, 'SPY', 110);
+INSERT INTO ETF VALUES(1000, 598, 'QQQ', 280.5);
+INSERT INTO ETF VALUES(267, 777, 'VTI', 12.8);
+INSERT INTO ETF VALUES(85, 4564, 'EEM', 60);
+INSERT INTO ETF VALUES(676, 1000, 'AGG', 5.5);
+INSERT INTO ETF VALUES(893, 1111, 'VOO', 1000);
+select * from etf;
+--/////////////////////////////////////////////////////////////////////////////////
+INSERT INTO OBLIGATIUNE VALUES(355, 6799, 'Banca Transilvania', 20000, TO_DATE('16-MAY-2023', 'DD-MON-YYYY'));
+INSERT INTO OBLIGATIUNE VALUES(789, 112, 'Romgaz', 1000.5, TO_DATE('19-FEB-2020', 'DD-MON-YYYY'));
+INSERT INTO OBLIGATIUNE VALUES(600, 110, 'Ministerul Finantelor', 7.1, TO_DATE('20-JAN-2022', 'DD-MON-YYYY'));
+INSERT INTO OBLIGATIUNE VALUES(800, 687, 'CEC Bank', 600, TO_DATE('01-JUN-2012', 'DD-MON-YYYY'));
+INSERT INTO OBLIGATIUNE VALUES(1000, 711, 'ING', 1180.2, TO_DATE('09-SEP-2022', 'DD-MON-YYYY'));
+INSERT INTO OBLIGATIUNE VALUES(2020, 555, 'Ministerul Culturii', 12, TO_DATE('26-OCT-2022', 'DD-MON-YYYY'));
+select * from OBLIGATIUNE;
+--/////////////////////////////////////////////////////////////////////////////////
+INSERT INTO COMPANIE VALUES(757, 'Romgaz', 'SNG', 6000000000, 'energie');
+INSERT INTO COMPANIE VALUES(685, 'Banca Transilvania', 'TLV', 9000000000, 'bancar');
+INSERT INTO COMPANIE VALUES(545, 'One United Properties', 'ONE', 400000000, 'imobiliar');
+INSERT INTO COMPANIE VALUES(444, 'OMV Petrom', 'SNP', 5000000000, 'petrol si gaze');
+INSERT INTO COMPANIE VALUES(324, 'Antibiotice Iasi', 'ATB', 6000000000, 'farmaceutic');
+INSERT INTO COMPANIE VALUES(877, 'Transelectrica', 'TEL', 20000000, 'distributie energie');
+INSERT INTO COMPANIE VALUES(363, 'Aeroportul Henri Coanda', 'BBU', 900000000, 'transporturi');
+INSERT INTO COMPANIE VALUES(12, 'Aquila', 'AQA', 70000000, 'energie');
+INSERT INTO COMPANIE VALUES(807, 'Transgaz', 'SNG', 7500000000, 'energie');
+INSERT INTO COMPANIE VALUES(576, 'Purcari', 'WINE', 22000000, 'vitivinicola');
+INSERT INTO COMPANIE VALUES(457, 'Medlife', 'M', 600000000, 'medical');
+INSERT INTO COMPANIE VALUES(222, 'Regina Maria', 'RM', 800000000, 'medical');
+select * from companie;
+--/////////////////////////////////////////////////////////////////////////////////
+INSERT INTO ACTIONAR VALUES(883, 'Electrica', 'Bucuresti', 'persoana juridica');
+INSERT INTO ACTIONAR VALUES(587, 'Ionescu Daria', 'Botosani', 'persoana fizica');
+INSERT INTO ACTIONAR VALUES(999,  'Castellano Joshua', 'Constanta', 'persoana fizica');
+INSERT INTO ACTIONAR VALUES(13, 'Sasu Jean', 'Bucuresti', 'persoana fizica');
+INSERT INTO ACTIONAR VALUES(646, 'Pop Florin', 'Constanta', 'persoana fizica');
+INSERT INTO ACTIONAR VALUES(456,  'BOA Entertainment SRL', 'Bucuresti', 'persoana juridica');
+INSERT INTO ACTIONAR VALUES(554, 'Tiras Invest SRL', 'Bucuresti', 'persoana juridica');
+INSERT INTO ACTIONAR VALUES(8483,  'Mihalache Marius', 'Bucuresti', 'persoana fizica');
+INSERT INTO ACTIONAR VALUES(333, 'Nuba SRL', 'Bucuresti', 'persoana juridica');
+INSERT INTO ACTIONAR VALUES(534, 'Stan Eric', 'Timisoara', 'persoana fizica');
+INSERT INTO ACTIONAR VALUES(303,  'Urdu Florina', 'Timisoara', 'persoana fizica');
+INSERT INTO ACTIONAR VALUES(56, 'Codreanu Alexandra', 'Iasi', 'persoana fizica');
+INSERT INTO ACTIONAR VALUES(3,  'Biris Ion', 'Constanta', 'persoana fizica');
+INSERT INTO ACTIONAR VALUES(888,  'Paval Sorin', 'Botosani', 'persoana fizica');
+INSERT INTO ACTIONAR VALUES(500, 'Paval Alex', 'Timisoara', 'persoana fizica');
+INSERT INTO ACTIONAR VALUES(76, 'Kapital SRL', 'Bucuresti', 'persoana juridica');
+INSERT INTO ACTIONAR VALUES(2691, 'Biris Georgiana', 'Constanta', 'persoana fizica');
+INSERT INTO ACTIONAR VALUES(446, 'Ghinea Andra', 'Galati', 'persoana fizica');
+INSERT INTO ACTIONAR VALUES(676, 'Mihalcea Jasmina', 'Galati', 'persoana fizica');
+INSERT INTO ACTIONAR VALUES(7567, 'Mihalcea Jasmina', 'Galati', 'persoana fizica');
+select * from actionar;
+--/////////////////////////////////////////////////////////////////////////////////
+create SEQUENCE id_dividend
+start with 1000
+increment by 2
+nocache
+nocycle;
+
+INSERT INTO DIVIDEND VALUES(id_dividend.nextval, 757, 1.2, TO_DATE('26-DEC-2012', 'DD-MON-YYYY'));
+INSERT INTO DIVIDEND VALUES(id_dividend.nextval, 757, 1.3, TO_DATE('23-JAN-2020', 'DD-MON-YYYY'));
+INSERT INTO DIVIDEND VALUES(id_dividend.nextval, 757, 0.2, TO_DATE('14-MAY-2019', 'DD-MON-YYYY'));
+INSERT INTO DIVIDEND VALUES(id_dividend.nextval, 685, 7.5, TO_DATE('06-DEC-2022', 'DD-MON-YYYY'));
+INSERT INTO DIVIDEND VALUES(id_dividend.nextval, 545, 0.11, TO_DATE('16-DEC-2022', 'DD-MON-YYYY'));
+INSERT INTO DIVIDEND VALUES(id_dividend.nextval, 444, 50.5, TO_DATE('19-MAY-2022', 'DD-MON-YYYY'));
+INSERT INTO DIVIDEND VALUES(id_dividend.nextval, 324, 0.25, TO_DATE('01-MAY-2022', 'DD-MON-YYYY'));
+INSERT INTO DIVIDEND VALUES(id_dividend.nextval, 324, 0.05, TO_DATE('07-JAN-2022', 'DD-MON-YYYY'));
+INSERT INTO DIVIDEND VALUES(id_dividend.nextval, 877, 2.8, TO_DATE('09-MAY-2021', 'DD-MON-YYYY'));
+INSERT INTO DIVIDEND VALUES(id_dividend.nextval, 877, 0.7, TO_DATE('11-MAY-2020', 'DD-MON-YYYY'));
+INSERT INTO DIVIDEND VALUES(id_dividend.nextval, 877, 0.9, TO_DATE('30-DEC-2021', 'DD-MON-YYYY'));
+INSERT INTO DIVIDEND VALUES(id_dividend.nextval, 363, NULL, TO_DATE('28-JAN-2012', 'DD-MON-YYYY'));
+INSERT INTO DIVIDEND VALUES(id_dividend.nextval, 12, 1.52, TO_DATE('14-DEC-2021', 'DD-MON-YYYY'));
+INSERT INTO DIVIDEND VALUES(id_dividend.nextval, 12, NULL, TO_DATE('14-MAY-2020', 'DD-MON-YYYY'));
+INSERT INTO DIVIDEND VALUES(id_dividend.nextval, 807, 80.5, TO_DATE('16-MAY-2020', 'DD-MON-YYYY'));
+INSERT INTO DIVIDEND VALUES(id_dividend.nextval, 807, 100, TO_DATE('17-JAN-2021', 'DD-MON-YYYY'));
+INSERT INTO DIVIDEND VALUES(id_dividend.nextval, 576, 10, TO_DATE('02-MAY-2020', 'DD-MON-YYYY'));
+INSERT INTO DIVIDEND VALUES(id_dividend.nextval, 457, NULL, TO_DATE('11-MAY-2021', 'DD-MON-YYYY'));
+INSERT INTO DIVIDEND VALUES(id_dividend.nextval, 222, 50, TO_DATE('10-JAN-2021', 'DD-MON-YYYY'));
+select * from dividend;
+
+commit;
+
+
+--Am utilizat 3 secvențe pentru a insera date în tabelele INVESTEȘTE, ETF, OBLIGAȚIUNE.
+create SEQUENCE id_act_comp
+start with 100
+increment by 1
+nocache
+nocycle;
+
+
+create SEQUENCE id_actiune
+start with 2
+nocache
+nocycle;
+
+create SEQUENCE id_detine
+start with 500
+increment by 5
+nocache
+nocycle;
+
+
+
+
+select * from investeste;
+create SEQUENCE id_act_comp
+start with 100
+increment by 1
+nocache
+nocycle;
+INSERT INTO INVESTESTE VALUES(id_act_comp.nextval, 883, 757, TO_DATE('10-JUL-2017', 'DD-MON-YYYY'), 8, 100000000);
+INSERT INTO INVESTESTE VALUES(id_act_comp.nextval, 883, 685, TO_DATE('10-JUL-2017', 'DD-MON-YYYY'), 7, 100000000);
+INSERT INTO INVESTESTE VALUES(id_act_comp.nextval, 587, 545, TO_DATE('10-AUG-2010', 'DD-MON-YYYY'), 20, 500000000);
+INSERT INTO INVESTESTE VALUES(id_act_comp.nextval, 587, 444, TO_DATE('10-JUL-2017', 'DD-MON-YYYY'), 15, 100000000);
+INSERT INTO INVESTESTE VALUES(id_act_comp.nextval, 999, 757, TO_DATE('10-JUL-2017', 'DD-MON-YYYY'), 90, 950000000);
+INSERT INTO INVESTESTE VALUES(id_act_comp.nextval, 999, 576, TO_DATE('10-JUL-2017', 'DD-MON-YYYY'), 100, 10000000);
+INSERT INTO INVESTESTE VALUES(id_act_comp.nextval, 13, 12, TO_DATE('02-MAR-2016', 'DD-MON-YYYY'), 10, 100000000);
+INSERT INTO INVESTESTE VALUES(id_act_comp.nextval, 646, 12, TO_DATE('09-SEP-2017', 'DD-MON-YYYY'), 5, 100000000);
+INSERT INTO INVESTESTE VALUES(id_act_comp.nextval, 456, 12, TO_DATE('09-JAN-2023', 'DD-MON-YYYY'), 50, 5000000);
+INSERT INTO INVESTESTE VALUES(id_act_comp.nextval, 456, 222, TO_DATE('09-MAR-2017', 'DD-MON-YYYY'), 25, 2500000);
+INSERT INTO INVESTESTE VALUES(id_act_comp.nextval, 554, 576, TO_DATE('16-NOV-2023', 'DD-MON-YYYY'), 14, 900000);
+INSERT INTO INVESTESTE VALUES(id_act_comp.nextval, 554, 807, TO_DATE('18-AUG-2017', 'DD-MON-YYYY'), 8, 200000);
+INSERT INTO INVESTESTE VALUES(id_act_comp.nextval, 8483, 576, TO_DATE('17-SEP-2022', 'DD-MON-YYYY'), 9, 70000000);
+INSERT INTO INVESTESTE VALUES(id_act_comp.nextval, 333, 12, TO_DATE('14-AUG-2017', 'DD-MON-YYYY'), 12, 800000);
+INSERT INTO INVESTESTE VALUES(id_act_comp.nextval, 534, 757, TO_DATE('18-NOV-2019', 'DD-MON-YYYY'), 80, 50000000);
+INSERT INTO INVESTESTE VALUES(id_act_comp.nextval, 534, 444, TO_DATE('11-FEB-2015', 'DD-MON-YYYY'), 100, 900000000);
+INSERT INTO INVESTESTE VALUES(id_act_comp.nextval, 534, 324, TO_DATE('22-MAR-2012', 'DD-MON-YYYY'), 40, 10000000);
+INSERT INTO INVESTESTE VALUES(id_act_comp.nextval, 303, 324, TO_DATE('25-JAN-2017', 'DD-MON-YYYY'), 22, 30000000);
+INSERT INTO INVESTESTE VALUES(id_act_comp.nextval, 56, 324, TO_DATE('28-AUG-2021', 'DD-MON-YYYY'), 33, 9000000);
+INSERT INTO INVESTESTE VALUES(id_act_comp.nextval, 3, 877, TO_DATE('29-SEP-2021', 'DD-MON-YYYY'), 1, 10000);
+INSERT INTO INVESTESTE VALUES(id_act_comp.nextval, 888, 877, TO_DATE('01-JAN-2004', 'DD-MON-YYYY'), 9, 100000);
+INSERT INTO INVESTESTE VALUES(id_act_comp.nextval, 888, 807, TO_DATE('09-AUG-2000', 'DD-MON-YYYY'), 75, 3000000);
+INSERT INTO INVESTESTE VALUES(id_act_comp.nextval, 500, 363, TO_DATE('08-SEP-2007', 'DD-MON-YYYY'), 60, 50000000);
+INSERT INTO INVESTESTE VALUES(id_act_comp.nextval, 76, 222, TO_DATE('07-NOV-2020', 'DD-MON-YYYY'), 35, 20000000);
+INSERT INTO INVESTESTE VALUES(id_act_comp.nextval, 76, 457, TO_DATE('03-FEB-2018', 'DD-MON-YYYY'), 45, 800000);
+INSERT INTO INVESTESTE VALUES(id_act_comp.nextval, 2691, 12, TO_DATE('17-JAN-2022', 'DD-MON-YYYY'), 99, 1000000000);
+INSERT INTO INVESTESTE VALUES(id_act_comp.nextval, 2691, 877, TO_DATE('18-MAR-2017', 'DD-MON-YYYY'), 90, 10000000);
+INSERT INTO INVESTESTE VALUES(id_act_comp.nextval, 446, 807, TO_DATE('12-NOV-2022', 'DD-MON-YYYY'), 8, 3000000);
+INSERT INTO INVESTESTE VALUES(id_act_comp.nextval, 676, 457, TO_DATE('03-AUG-2014', 'DD-MON-YYYY'), 10, 200000);
+INSERT INTO INVESTESTE VALUES(id_act_comp.nextval, 676, 877, TO_DATE('02-FEB-2019', 'DD-MON-YYYY'), 33, 700000);
+INSERT INTO INVESTESTE VALUES(id_act_comp.nextval, 7567, 363, TO_DATE('01-MAR-2017', 'DD-MON-YYYY'), 25, 9900000);
+INSERT INTO INVESTESTE VALUES(id_act_comp.nextval, 3, 545, TO_DATE('30-MAY-2001', 'DD-MON-YYYY'), 2, 80000);
+select * from investeste;
+--/////////////////////////////////////////////////////////////////////////////////
+create SEQUENCE id_actiune
+start with 2
+nocache
+nocycle;
+
+INSERT INTO ACTIUNE VALUES(id_actiune.nextval, 5876, 757, 3);
+INSERT INTO ACTIUNE VALUES(id_actiune.nextval, 222, 757, 3.2);
+INSERT INTO ACTIUNE VALUES(id_actiune.nextval, 792, 685, 7800);
+INSERT INTO ACTIUNE VALUES(id_actiune.nextval, 888, 545, 15000);
+INSERT INTO ACTIUNE VALUES(id_actiune.nextval, 900, 444, 10000.77);
+INSERT INTO ACTIUNE VALUES(id_actiune.nextval, 551, 324, 69000.5);
+INSERT INTO ACTIUNE VALUES(id_actiune.nextval, 567, 877, 1000.6);
+INSERT INTO ACTIUNE VALUES(id_actiune.nextval, 5923, 363, 9600.1);
+INSERT INTO ACTIUNE VALUES(id_actiune.nextval, 87655, 12, 700.2);
+INSERT INTO ACTIUNE VALUES(id_actiune.nextval, 3443, 807, 7000.9);
+INSERT INTO ACTIUNE VALUES(id_actiune.nextval, 668, 807, 5000.5);
+INSERT INTO ACTIUNE VALUES(id_actiune.nextval, 999, 576, 1500.55);
+INSERT INTO ACTIUNE VALUES(id_actiune.nextval, 5923, 757, 1500.55);
+select * from actiune;
+--/////////////////////////////////////////////////////////////////////////////////
+create SEQUENCE id_detine
+start with 500
+increment by 5
+nocache
+nocycle;
+
+INSERT INTO DETINE VALUES (id_detine.nextval, 1992, 9012,4 ,TO_DATE('10-JUL-2017', 'DD-MON-YYYY'));
+INSERT INTO DETINE VALUES (id_detine.nextval, 1992, 3456,5 , TO_DATE('10-AUG-2020', 'DD-MON-YYYY'));
+INSERT INTO DETINE VALUES (id_detine.nextval, 653, 2345, 6, TO_DATE('16-SEP-2021', 'DD-MON-YYYY'));
+INSERT INTO DETINE VALUES (id_detine.nextval, 653, 2345, 17,TO_DATE('15-FEB-2019', 'DD-MON-YYYY'));
+INSERT INTO DETINE VALUES (id_detine.nextval, 290, 6789, 8,TO_DATE('04-OCT-2021', 'DD-MON-YYYY'));
+INSERT INTO DETINE VALUES (id_detine.nextval, 568, 4561,9 ,TO_DATE('12-DEC-2019', 'DD-MON-YYYY'));
+INSERT INTO DETINE VALUES (id_detine.nextval, 568, 4561,13 ,TO_DATE('25-JUL-2021', 'DD-MON-YYYY'));
+INSERT INTO DETINE VALUES (id_detine.nextval, 992, 7903,10 ,TO_DATE('23-OCT-2019', 'DD-MON-YYYY'));
+INSERT INTO DETINE VALUES (id_detine.nextval, 444, 2342,11 ,TO_DATE('10-SEP-2021', 'DD-MON-YYYY'));
+INSERT INTO DETINE VALUES (id_detine.nextval, 444, 2342,16 ,TO_DATE('06-DEC-2018', 'DD-MON-YYYY'));
+INSERT INTO DETINE VALUES (id_detine.nextval, 3281, 6784,12 ,TO_DATE('07-OCT-2020', 'DD-MON-YYYY'));
+INSERT INTO DETINE VALUES (id_detine.nextval, 927, 8907,14,TO_DATE('16-FEB-2021', 'DD-MON-YYYY'));
+INSERT INTO DETINE VALUES (id_detine.nextval, 342, 2348, 15,TO_DATE('19-JUL-2018', 'DD-MON-YYYY'));
+select * from detine;
+commit;
+
+
+
+
+
+
+---------------------------CERINTE-------------------------
+
+-- cerinta 6
+create or replace procedure companii_si_actionari as
+    type tabel_indexat is table of number index BY PLS_INTEGER;
+    type tabel_imbricat is table of VARCHAR2(100);
+    type vectorr is varray(100) of NUMBER;
+
+    id_companii tabel_indexat;
+    actionari tabel_imbricat := tabel_imbricat();
+    nr_actiuni vectorr := vectorr();
+
+    v_nr_actiuni NUMBER;
+
+begin
+    -- ID-urile pare ale companiilor le pun in tabel indexat
+    FOR i IN (select id_companie from companie where mod(id_companie, 2) = 0) loop
+        id_companii(id_companii.COUNT + 1) := i.id_companie;
+    end loop;
+
+    -- pun in tabelul imbricat numele actionarilor care au investit in companii cu ID-uri pare
+    for j IN (select DISTINCT a.nume
+              from actionar a, investeste i, companie c
+              where a.id_actionar=i.id_actionar
+              and i.id_companie = c.id_companie
+              and mod(c.id_companie, 2) = 0) loop
+        actionari.EXTEND;
+        actionari(actionari.last) := j.nume;
+    end loop;
+
+    -- in array pun nr total de actiuni pt fiecare companie
+    for k IN (select id_companie, COUNT(*) AS nr_total
+              FROM actiune
+              group by id_companie) loop
+        nr_actiuni.EXTEND;
+        nr_actiuni(nr_actiuni.last) := k.nr_total;
+    end loop;
+
+    -- afisez actionarii si nr de actiuni
+    if actionari.COUNT > 0 then
+        DBMS_OUTPUT.PUT_LINE('Actionari care au investit in companii cu ID par: ');
+        for cnt IN 1..actionari.count loop
+            DBMS_OUTPUT.PUT_LINE(actionari(cnt));
+        END LOOP;
+    END IF;
+
+    
+    DBMS_OUTPUT.PUT_LINE('------------------------------------');
+    -- afisez continutul tabelului indexat
+    DBMS_OUTPUT.PUT_LINE('ID-urile companiilor cu ID par: ');
+    for p in 1..id_companii.count loop
+        DBMS_OUTPUT.PUT_LINE('Compania cu ID ' || id_companii(p));
+    end loop;
+
+    DBMS_OUTPUT.PUT_LINE('------------------------------------');
+    -- afisez nr total de actiuni pe care le are fiecare companie cu ID par
+    DBMS_OUTPUT.PUT_LINE('Nr de actiuni publice pt companii cu ID par: ');
+    for p in 1..id_companii.count loop
+        DBMS_OUTPUT.PUT_LINE('Compania cu ID ' || id_companii(p)
+                             || ' are ' || nr_actiuni(p) || ' actiuni');
+    end loop;
+end companii_si_actionari;
+/
+
+execute companii_si_actionari;
+
+
+
+-- cerinta 7
+create or replace procedure ex7 as
+    type refcursor is ref cursor;
+    ordine_clnt refcursor;
+    v_balanta portofoliu.balanta%type:=6000;
+    v_idclient portofoliu.id_client%type;
+    v_idordin ordin.id_ordin%type;
+    v_numar ordin.numar%type;
+    v_pretunitate ordin.pret_unitate%type;
+    v_total NUMBER;
+    
+    cursor info(balantaa NUMBER) is
+        select p.id_client,
+            cursor (
+                    select o.id_ordin, o.numar, o.pret_unitate
+                    from ordin o
+                    where o.id_portofoliu=p.id_portofoliu
+                    )
+                    from portofoliu p
+                    where p.balanta=balantaa;
+    begin
+        open info(v_balanta);
+        loop
+            fetch info into v_idclient,  ordine_clnt;
+            exit when info%NOTFOUND;
+            dbms_output.put_line('Clientul cu ID ' || v_idclient || ' are urmatoarele ordine ');
+            
+            loop
+                fetch ordine_clnt into v_idordin, v_numar, v_pretunitate;
+                exit when ordine_clnt%NOTFOUND;
+                
+                v_total:=v_numar*v_pretunitate;
+                dbms_output.put_line('Ordinul ' || v_idordin || ' cu valoarea de '  || v_total || ' lei ');
+            end loop;
+        end loop;
+        close info;
+end;
+/
+execute ex7;
+
+
+
+
+-- cerinta 8
+CREATE OR REPLACE FUNCTION div_si_clnt(p_client_name client.nume%type) RETURN NUMBER IS
+    v_dividend_countt NUMBER := 0;
+    v_id client.id_client%type;
+
+    CURSOR c_data IS
+        SELECT clnt.id_client, COUNT(*)
+        FROM companie c, dividend d, actiune a, detine de, client clnt
+        WHERE c.id_companie = d.id_companie
+            AND a.id_companie = c.id_companie
+            AND de.id_actiune = a.id_actiune
+            AND clnt.id_client = de.id_client
+            AND d.valoare > 0
+            AND INITCAP(clnt.nume) = INITCAP(p_client_name)
+            AND EXTRACT(MONTH FROM d.data_plata) > 10
+        GROUP BY clnt.id_client;
+
+    CURSOR c_dividend IS
+        SELECT clnt.id_client, COUNT(*)
+        FROM companie c, dividend d, actiune a, detine de, client clnt
+        WHERE c.id_companie = d.id_companie
+            AND a.id_companie = c.id_companie
+            AND de.id_actiune = a.id_actiune
+            AND clnt.id_client = de.id_client
+            AND d.valoare IS NULL
+            AND INITCAP(clnt.nume) = INITCAP(p_client_name)
+            AND EXTRACT(MONTH FROM d.data_plata) < 10
+        GROUP BY clnt.id_client;
+
+BEGIN
+    OPEN c_data;
+    FETCH c_data INTO v_id, v_dividend_countt;
+
+    IF c_data%FOUND THEN
+        CLOSE c_data;
+        RAISE_APPLICATION_ERROR(-20009, 'DIVIDENDUL ESTE PLATIT ABIA DUPA LUNA OCTOMBRIE');
+    END IF;
+
+    CLOSE c_data;
+
+    OPEN c_dividend;
+    FETCH c_dividend INTO v_id, v_dividend_countt;
+
+    IF c_dividend%FOUND THEN
+        CLOSE c_dividend;
+        RAISE_APPLICATION_ERROR(-20009, 'DIVIDENDUL ESTE NULL');
+    END IF;
+
+    CLOSE c_dividend;
+
+    SELECT clnt.id_client, COUNT(*)
+    INTO v_id, v_dividend_countt
+    FROM companie c, dividend d, actiune a, detine de, client clnt
+    WHERE c.id_companie = d.id_companie
+        AND a.id_companie = c.id_companie
+        AND de.id_actiune = a.id_actiune
+        AND clnt.id_client = de.id_client
+        AND d.valoare > 0
+        AND INITCAP(clnt.nume) = INITCAP(p_client_name)
+        AND EXTRACT(MONTH FROM d.data_plata) < 10
+    GROUP BY clnt.id_client;
+
+    RETURN v_dividend_countt;
+
+EXCEPTION
+    WHEN TOO_MANY_ROWS THEN
+        RAISE_APPLICATION_ERROR(-20007, 'Sunt prea multi clienti cu acelasi nume.');
+    WHEN NO_DATA_FOUND THEN
+        RAISE_APPLICATION_ERROR(-20008, 'Nu s-a returnat nimic');
+END div_si_clnt;
+/
+
+
+
+-- cerinta 9
+CREATE OR REPLACE PROCEDURE raport_clienti(p_number IN NUMBER, p_client_name IN VARCHAR2) AS
+    TYPE tabel_clienti IS TABLE OF VARCHAR2(100);
+    clienti tabel_clienti := tabel_clienti();
+    v_client_count NUMBER := 0;
+    v_id client.id_client%type;
+    v_dividend_countt NUMBER := 0;
+
+    CURSOR c_cap IS
+        SELECT clnt.nume || ' ' || clnt.prenume AS nume_si_prenume
+        FROM client clnt, detine d, actiune a, companie c, dividend dv 
+        WHERE clnt.id_client = d.id_client 
+            AND d.id_actiune = a.id_actiune
+            AND a.id_companie = c.id_companie
+            AND clnt.nume = p_client_name
+            AND c.capitalizare < p_number
+            AND c.id_companie = dv.id_companie
+            AND dv.valoare > 1;
+
+    CURSOR c_dividend IS
+        SELECT clnt.nume || ' ' || clnt.prenume AS nume_si_prenume
+        FROM client clnt, detine d, actiune a, companie c, dividend dv 
+        WHERE clnt.id_client = d.id_client 
+            AND d.id_actiune = a.id_actiune
+            AND a.id_companie = c.id_companie
+            AND clnt.nume = p_client_name
+            AND c.capitalizare > p_number
+            AND c.id_companie = dv.id_companie
+            AND dv.valoare < 1;
+
+BEGIN
+    BEGIN
+        OPEN c_cap;
+        FETCH c_cap INTO v_id; 
+        IF c_cap%FOUND THEN
+            CLOSE c_cap;
+            RAISE_APPLICATION_ERROR(-20009, 'PRIMAE XC');
+        END IF;
+        CLOSE c_cap;
+
+        OPEN c_dividend;
+        FETCH c_dividend INTO v_id;
+        IF c_dividend%FOUND THEN
+            CLOSE c_dividend;
+            RAISE_APPLICATION_ERROR(-20009, 'a doau exc');
+        END IF;
+        CLOSE c_dividend;
+
+        SELECT COUNT(*)
+        INTO v_client_count
+        FROM client clnt
+        WHERE clnt.nume = p_client_name;
+
+        IF v_client_count > 1 THEN
+            RAISE TOO_MANY_ROWS;
+        ELSIF v_client_count = 0 THEN
+            RAISE NO_DATA_FOUND;
+        END IF;
+        
+        FOR rec_client IN (
+            SELECT distinct clnt.nume || ' ' || clnt.prenume AS nume_si_prenume
+            FROM client clnt, detine d, actiune a, companie c, dividend dv 
+            WHERE clnt.id_client = d.id_client 
+                AND d.id_actiune = a.id_actiune
+                AND a.id_companie = c.id_companie
+                AND clnt.nume = p_client_name
+                AND c.capitalizare > p_number
+                AND c.id_companie = dv.id_companie
+                AND dv.valoare > 1
+        ) LOOP
+            clienti.EXTEND;
+            clienti(clienti.LAST) := rec_client.nume_si_prenume;
+        END LOOP;
+
+        IF clienti.COUNT > 0 THEN
+            DBMS_OUTPUT.PUT_LINE('Clientul care respecta criteriile este:');
+            FOR i IN 1..clienti.COUNT LOOP
+                DBMS_OUTPUT.PUT_LINE(clienti(i));
+            END LOOP;
+        ELSIF clienti.count = 0 THEN
+            RAISE NO_DATA_FOUND;
+        END IF;
+
+    EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+            DBMS_OUTPUT.PUT_LINE('Nu exista niciun rezultat pentru query');
+        WHEN TOO_MANY_ROWS THEN
+            DBMS_OUTPUT.PUT_LINE('Au fost returnate prea multe randuri pentru clientul ' || p_client_name);
+        WHEN OTHERS THEN
+            DBMS_OUTPUT.PUT_LINE('Alta eroare');
+    END;
+END;
+/
+
+
+
+-- cerinta 10
+create or replace trigger trig_10
+    before insert or update or delete on ordin
+begin
+     IF TO_CHAR(SYSDATE, 'D') IN (1, 7) THEN
+        RAISE_APPLICATION_ERROR(-20001, 'Nu se pot face operatii decat in zilele lucratoare.');
+    ELSIF TO_CHAR(SYSDATE, 'HH24') NOT BETWEEN 10 AND 18 THEN
+        RAISE_APPLICATION_ERROR(-20009, 'Nu se pot face operatii cu ordine, decat intre orele 10 si 18.');
+    ELSE
+        RAISE_APPLICATION_ERROR(-20003, 'Operatia nu este permisa in acest moment.' || TO_CHAR(SYSDATE, 'Day') || ', Ora curent?: ' || TO_CHAR(SYSDATE, 'HH24:MI:SS'));
+    END IF;
+end;
+/
+
+
+insert into ordin (id_ordin, id_portofoliu, tip, numar, pret_unitate, stare)
+values (136, 7890, 'vanzare', 5, 1000, 'inchis');
+select * from ordin;
+
+drop trigger trig_10;
+
+
+
+-- cerinta 11
+create or replace trigger trig_11
+    before update of pret_curent, simbol on etf
+    for each row
+begin
+    if (:NEW.pret_curent > :OLD.pret_curent*1.1 or :NEW.pret_curent < :OLD.pret_curent*1.1) then
+        raise_application_error(-20002, 'Pretul curent al ETF-ului nu poate fluctua atat de mult');
+    end if;
+    
+    if (:NEW.simbol <> :OLD.simbol) then
+        raise_application_error(-20003, 'Simbolul ETF-ului nu poate fi schimbat');
+    end if;
+end;
+/
+update etf
+set pret_curent='4000'
+where id_etf=676;
+
+drop trigger trig_11;
+
+
+
+-- cerinta 12
+create table audit_utilizator
+    (nume_utilizator varchar2(30),
+    nume_bd varchar2(50),
+    eveniment varchar2(20),
+    nume_obiect varchar2(30),
+    data_audit date);
+
+create or replace trigger trg_audit
+    after create or drop or alter on schema
+begin
+    insert into audit_utilizator (nume_utilizator, nume_bd, eveniment, nume_obiect, data_audit)
+    values (sys.login_user, sys.database_name, sys.sysevent, sys.dictionary_obj_name, sysdate);
+end;
+/
+create index indd on client(nume);
+drop index indd;
+drop trigger trg_audit;
+drop table audit_utilizator;
+
+
+
+-- cerinta 13
+create or replace package pachet_broker_financiar as
+    --ex 6
+    procedure companii_si_actionari;
+    --ex 7
+    procedure ex7;
+    --ex 8 
+    FUNCTION div_si_clnt(p_client_name client.nume%type) return number;
+    --ex 9
+     procedure raport_clienti(p_number IN NUMBER, p_client_name IN VARCHAR2);
+end pachet_broker_financiar;
+
+CREATE OR REPLACE PACKAGE BODY pachet_broker_financiar AS
+    --ex6
+    PROCEDURE companii_si_actionari AS
+        TYPE tabel_indexat IS TABLE OF NUMBER INDEX BY PLS_INTEGER;
+        TYPE tabel_imbricat IS TABLE OF VARCHAR2(100);
+        TYPE vectorr IS VARRAY(100) OF NUMBER;
+
+        id_companii tabel_indexat;
+        actionari tabel_imbricat := tabel_imbricat();
+        nr_actiuni vectorr := vectorr();
+
+        v_nr_actiuni NUMBER;
+
+    BEGIN
+        -- ID-urile pare ale companiilor le pun in tabel indexat
+        FOR i IN (SELECT id_companie FROM companie WHERE MOD(id_companie, 2) = 0) LOOP
+            id_companii(id_companii.COUNT + 1) := i.id_companie;
+        END LOOP;
+
+        -- pun in tabelul imbricat numele actionarilor care au investit in companii cu ID-uri pare
+        FOR j IN (SELECT DISTINCT a.nume
+                  FROM actionar a, investeste i, companie c
+                  WHERE a.id_actionar = i.id_actionar
+                    AND i.id_companie = c.id_companie
+                    AND MOD(c.id_companie, 2) = 0) LOOP
+            actionari.EXTEND;
+            actionari(actionari.LAST) := j.nume;
+        END LOOP;
+
+        -- in array pun nr total de actiuni pt fiecare companie
+        FOR k IN (SELECT id_companie, COUNT(*) AS nr_total
+                  FROM actiune
+                  GROUP BY id_companie) LOOP
+            nr_actiuni.EXTEND;
+            nr_actiuni(nr_actiuni.LAST) := k.nr_total;
+        END LOOP;
+
+        -- afisez actionarii si nr de actiuni
+        IF actionari.COUNT > 0 THEN
+            DBMS_OUTPUT.PUT_LINE('Actionari care au investit in companii cu ID par: ');
+            FOR cnt IN 1..actionari.COUNT LOOP
+                DBMS_OUTPUT.PUT_LINE(actionari(cnt));
+            END LOOP;
+        END IF;
+
+        DBMS_OUTPUT.PUT_LINE('------------------------------------');
+        -- afisez continutul tabelului indexat
+        DBMS_OUTPUT.PUT_LINE('ID-urile companiilor cu ID par: ');
+        FOR p IN 1..id_companii.COUNT LOOP
+            DBMS_OUTPUT.PUT_LINE('Compania cu ID ' || id_companii(p));
+        END LOOP;
+
+        DBMS_OUTPUT.PUT_LINE('------------------------------------');
+        -- afisez nr total de actiuni pe care le are fiecare companie cu ID par
+        DBMS_OUTPUT.PUT_LINE('Nr de actiuni publice pt companii cu ID par: ');
+        FOR p IN 1..id_companii.COUNT LOOP
+            DBMS_OUTPUT.PUT_LINE('Compania cu ID ' || id_companii(p)
+                                 || ' are ' || nr_actiuni(p) || ' actiuni');
+        END LOOP;
+    END companii_si_actionari;
+
+    --ex 7
+    PROCEDURE ex7 AS
+        TYPE refcursor IS REF CURSOR;
+        ordine_clnt refcursor;
+        v_balanta portofoliu.balanta%TYPE := 6000;
+        v_idclient portofoliu.id_client%TYPE;
+        v_idordin ordin.id_ordin%TYPE;
+        v_numar ordin.numar%TYPE;
+        v_pretunitate ordin.pret_unitate%TYPE;
+        v_total NUMBER;
+
+        CURSOR info(balantaa NUMBER) IS
+            SELECT p.id_client,
+                   CURSOR (SELECT o.id_ordin, o.numar, o.pret_unitate
+                           FROM ordin o
+                           WHERE o.id_portofoliu = p.id_portofoliu)
+            FROM portofoliu p
+            WHERE p.balanta = balantaa;
+
+    BEGIN
+        OPEN info(v_balanta);
+        LOOP
+            FETCH info INTO v_idclient, ordine_clnt;
+            EXIT WHEN info%NOTFOUND;
+            DBMS_OUTPUT.PUT_LINE('Clientul cu ID ' || v_idclient || ' are urmatoarele ordine ');
+
+            LOOP
+                FETCH ordine_clnt INTO v_idordin, v_numar, v_pretunitate;
+                EXIT WHEN ordine_clnt%NOTFOUND;
+
+                v_total := v_numar * v_pretunitate;
+                DBMS_OUTPUT.PUT_LINE('Ordinul ' || v_idordin || ' cu valoarea de ' || v_total || ' lei ');
+            END LOOP;
+        END LOOP;
+        CLOSE info;
+    END ex7;
+
+    --ex 8
+     FUNCTION div_si_clnt(p_client_name client.nume%type) RETURN NUMBER IS
+    v_dividend_countt NUMBER := 0;
+    v_id client.id_client%type;
+
+    CURSOR c_data IS
+        SELECT clnt.id_client, COUNT(*)
+        FROM companie c, dividend d, actiune a, detine de, client clnt
+        WHERE c.id_companie = d.id_companie
+            AND a.id_companie = c.id_companie
+            AND de.id_actiune = a.id_actiune
+            AND clnt.id_client = de.id_client
+            AND d.valoare > 0
+            AND INITCAP(clnt.nume) = INITCAP(p_client_name)
+            AND EXTRACT(MONTH FROM d.data_plata) > 10
+        GROUP BY clnt.id_client;
+
+    CURSOR c_dividend IS
+        SELECT clnt.id_client, COUNT(*)
+        FROM companie c, dividend d, actiune a, detine de, client clnt
+        WHERE c.id_companie = d.id_companie
+            AND a.id_companie = c.id_companie
+            AND de.id_actiune = a.id_actiune
+            AND clnt.id_client = de.id_client
+            AND d.valoare IS NULL
+            AND INITCAP(clnt.nume) = INITCAP(p_client_name)
+            AND EXTRACT(MONTH FROM d.data_plata) < 10
+        GROUP BY clnt.id_client;
+
+    BEGIN
+    OPEN c_data;
+    FETCH c_data INTO v_id, v_dividend_countt;
+
+    IF c_data%FOUND THEN
+        CLOSE c_data;
+        RAISE_APPLICATION_ERROR(-20009, 'DIVIDENDUL ESTE PLATIT ABIA DUPA LUNA OCTOMBRIE');
+    END IF;
+
+    CLOSE c_data;
+
+    OPEN c_dividend;
+    FETCH c_dividend INTO v_id, v_dividend_countt;
+
+    IF c_dividend%FOUND THEN
+        CLOSE c_dividend;
+        RAISE_APPLICATION_ERROR(-20009, 'DIVIDENDUL ESTE NULL');
+    END IF;
+
+    CLOSE c_dividend;
+
+    SELECT clnt.id_client, COUNT(*)
+    INTO v_id, v_dividend_countt
+    FROM companie c, dividend d, actiune a, detine de, client clnt
+    WHERE c.id_companie = d.id_companie
+        AND a.id_companie = c.id_companie
+        AND de.id_actiune = a.id_actiune
+        AND clnt.id_client = de.id_client
+        AND d.valoare > 0
+        AND INITCAP(clnt.nume) = INITCAP(p_client_name)
+        AND EXTRACT(MONTH FROM d.data_plata) < 10
+    GROUP BY clnt.id_client;
+
+    RETURN v_dividend_countt;
+
+    EXCEPTION
+        WHEN TOO_MANY_ROWS THEN
+            RAISE_APPLICATION_ERROR(-20007, 'Sunt prea multi clienti cu acelasi nume.');
+        WHEN NO_DATA_FOUND THEN
+            RAISE_APPLICATION_ERROR(-20008, 'Nu s-a returnat nimic');
+    END div_si_clnt;
+    
+
+    --ex 9
+    PROCEDURE raport_clienti(p_number IN NUMBER, p_client_name IN VARCHAR2) AS
+    TYPE tabel_clienti IS TABLE OF VARCHAR2(100);
+    clienti tabel_clienti := tabel_clienti();
+    v_client_count NUMBER := 0;
+    v_id client.id_client%type;
+    v_dividend_countt NUMBER := 0;
+
+    CURSOR c_cap IS
+        SELECT clnt.nume || ' ' || clnt.prenume AS nume_si_prenume
+        FROM client clnt, detine d, actiune a, companie c, dividend dv 
+        WHERE clnt.id_client = d.id_client 
+            AND d.id_actiune = a.id_actiune
+            AND a.id_companie = c.id_companie
+            AND clnt.nume = p_client_name
+            AND c.capitalizare < p_number
+            AND c.id_companie = dv.id_companie
+            AND dv.valoare > 1;
+
+    CURSOR c_dividend IS
+        SELECT clnt.nume || ' ' || clnt.prenume AS nume_si_prenume
+        FROM client clnt, detine d, actiune a, companie c, dividend dv 
+        WHERE clnt.id_client = d.id_client 
+            AND d.id_actiune = a.id_actiune
+            AND a.id_companie = c.id_companie
+            AND clnt.nume = p_client_name
+            AND c.capitalizare > p_number
+            AND c.id_companie = dv.id_companie
+            AND dv.valoare < 1;
+
+    BEGIN
+    BEGIN
+        OPEN c_cap;
+        FETCH c_cap INTO v_id; 
+        IF c_cap%FOUND THEN
+            CLOSE c_cap;
+            RAISE_APPLICATION_ERROR(-20009, 'PRIMAE XC');
+        END IF;
+        CLOSE c_cap;
+
+        OPEN c_dividend;
+        FETCH c_dividend INTO v_id;
+        IF c_dividend%FOUND THEN
+            CLOSE c_dividend;
+            RAISE_APPLICATION_ERROR(-20009, 'a doau exc');
+        END IF;
+        CLOSE c_dividend;
+
+        SELECT COUNT(*)
+        INTO v_client_count
+        FROM client clnt
+        WHERE clnt.nume = p_client_name;
+
+        IF v_client_count > 1 THEN
+            RAISE TOO_MANY_ROWS;
+        ELSIF v_client_count = 0 THEN
+            RAISE NO_DATA_FOUND;
+        END IF;
+        
+        FOR rec_client IN (
+            SELECT distinct clnt.nume || ' ' || clnt.prenume AS nume_si_prenume
+            FROM client clnt, detine d, actiune a, companie c, dividend dv 
+            WHERE clnt.id_client = d.id_client 
+                AND d.id_actiune = a.id_actiune
+                AND a.id_companie = c.id_companie
+                AND clnt.nume = p_client_name
+                AND c.capitalizare > p_number
+                AND c.id_companie = dv.id_companie
+                AND dv.valoare > 1
+        ) LOOP
+            clienti.EXTEND;
+            clienti(clienti.LAST) := rec_client.nume_si_prenume;
+        END LOOP;
+
+        IF clienti.COUNT > 0 THEN
+            DBMS_OUTPUT.PUT_LINE('Clientul care respecta criteriile este:');
+            FOR i IN 1..clienti.COUNT LOOP
+                DBMS_OUTPUT.PUT_LINE(clienti(i));
+            END LOOP;
+        ELSIF clienti.count = 0 THEN
+            RAISE NO_DATA_FOUND;
+        END IF;
+
+    EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+            DBMS_OUTPUT.PUT_LINE('Nu exista niciun rezultat pentru query');
+        WHEN TOO_MANY_ROWS THEN
+            DBMS_OUTPUT.PUT_LINE('Au fost returnate prea multe randuri pentru clientul ' || p_client_name);
+        WHEN OTHERS THEN
+            DBMS_OUTPUT.PUT_LINE('Alta eroare');
+    END;
+    END;
+    
+END pachet_broker_financiar;
+/
+--------------------------
+BEGIN
+    pachet_broker_financiar.companii_si_actionari;
+END;
+/
+
+BEGIN
+    pachet_broker_financiar.ex7;
+END;
+/
+
+DECLARE
+    v_dividend_count NUMBER;
+BEGIN
+    v_dividend_count := pachet_broker_financiar.div_si_clnt('Gheorghe');
+    DBMS_OUTPUT.PUT_LINE('Numarul de companii corespunzatoare clientului: ' || v_dividend_count);
+END;
+/
+
+BEGIN
+    pachet_broker_financiar.raport_clienti(10000, 'Gheorghe');
+END;
+/
+
+
+
+
+
+
